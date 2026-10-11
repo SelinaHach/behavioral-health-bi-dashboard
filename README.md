@@ -4,7 +4,7 @@
 Of 1,474,025 substance use treatment discharges reported to SAMHSA for 2023, **42.6% completed treatment**. This project loads the full public file into a SQL Server star schema, gates it with 12 data-quality checks, and serves five KPI views to a Tableau Cloud dashboard built for field executives.
 
 **Live preview:** web version of the dashboard, computed from the same views (`dashboard/behavioral_health_dashboard_standalone.html`)
-**Tableau Cloud:** _add link after publishing_
+**Tableau Cloud:** pending
 
 ## Findings
 
