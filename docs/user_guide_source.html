@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8">
+<title>Behavioral Health BI Dashboard: User Guide</title>
+<style>
+@page { size: Letter; margin: 0.42in 0.5in; }
+* { box-sizing: border-box; }
+body { margin: 0; font: 9.3pt/1.3 Carlito, Calibri, "Liberation Sans", sans-serif; color: #1d2a2e; }
+h1 { font-size: 17pt; margin: 0; color: #0d4f4b; line-height: 1.1; }
+h2 { font-size: 10.2pt; margin: 8px 0 3px; color: #0d4f4b; text-transform: uppercase; letter-spacing: .04em; border-bottom: 1px solid #c9d6d6; padding-bottom: 2px; }
+.sub { color: #4b5d61; margin: 3px 0 0; font-size: 9.6pt; }
+.top { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; }
+.badge { text-align: right; font-size: 8.6pt; color: #4b5d61; line-height: 1.3; }
+.badge b { color: #0d4f4b; font-size: 15pt; display: block; }
+table { width: 100%; border-collapse: collapse; font-size: 8.9pt; }
+th, td { text-align: left; vertical-align: top; padding: 3px 6px; border-bottom: 1px solid #e3eaea; }
+th { font-size: 8pt; color: #4b5d61; text-transform: uppercase; letter-spacing: .03em; }
+td:first-child { font-weight: 700; white-space: nowrap; }
+code { font: 8.3pt "DejaVu Sans Mono", monospace; background: #eef4f4; padding: 0 2px; }
+.cols { display: grid; grid-template-columns: 1fr 1fr; gap: 0 18px; }
+ul { margin: 2px 0; padding-left: 15px; } li { margin: 1px 0; }
+.foot { margin-top: 8px; font-size: 7.9pt; color: #6a7a7e; border-top: 1px solid #c9d6d6; padding-top: 4px; }
+</style></head><body>
+<div class="top">
+  <div>
+    <h1>How Many Patients Finish Addiction Treatment?</h1>
+    <p class="sub">User guide for the Behavioral Health BI Dashboard (Tableau Cloud) · Audience: field executives and clinical leadership</p>
+  </div>
+  <div class="badge"><b>42.6%</b>national completion rate<br>627,897 of 1,474,025 discharges</div>
+</div>
+
+<h2>What the dashboard answers</h2>
+<p style="margin:0">Of patients discharged from substance use treatment in 2023, how many completed their treatment plan, where completion is low, and how early patients leave. One row of data = one treatment episode discharge from SAMHSA's TEDS-D 2023 public file (48 states, DC and Puerto Rico; Delaware, Montana and West Virginia did not report). TEDS counts episodes, not unique people, and mainly covers publicly funded programs.</p>
+
+<h2>Metric definitions</h2>
+<table>
+<tr><th style="width:22%">Metric</th><th>Definition</th><th style="width:27%">Source field / rule</th></tr>
+<tr><td>Discharges</td><td>Treatment episodes that ended in the period and scope selected.</td><td>Count of <code>CASEID</code></td></tr>
+<tr><td>Completion rate</td><td>Share of discharges where all parts of the treatment plan were completed.</td><td><code>REASON = 1</code> ÷ discharges</td></tr>
+<tr><td>Dropout rate</td><td>Share of discharges where the patient left treatment against advice.</td><td><code>REASON = 2</code> ÷ discharges</td></tr>
+<tr><td>Early dropout</td><td>Dropouts with a length of stay of 30 days or fewer, shown as a share of all dropouts.</td><td><code>REASON = 2</code> and <code>LOS ≤ 30</code></td></tr>
+<tr><td>Transfer rate</td><td>Share of discharges moved to another program or facility. Not a failure; often a step down in level of care.</td><td><code>REASON = 4</code> ÷ discharges</td></tr>
+<tr><td>Length of stay</td><td>Days from admission to last contact. Days 1-30 are exact; longer stays come in SAMHSA's ranges (31-45, 46-60, 61-90, 91-120, 121-180, 181-365, 1 year+).</td><td><code>LOS</code> codes 1-37</td></tr>
+<tr><td>Peer range flag</td><td>State completion rate more than 1.5 standard deviations above or below the mean of states with 1,000+ discharges.</td><td>z-score on state rates</td></tr>
+<tr><td>Reporting review flag</td><td>One discharge reason covers 80%+ of a state's records. The rate likely reflects how the state codes discharges, so compare with care.</td><td>Top <code>REASON</code> share ≥ 80%</td></tr>
+</table>
+
+<div class="cols">
+<div>
+<h2>The five views</h2>
+<ul>
+<li><b>1 Scorecard.</b> Headline KPIs, how discharges end, and the national rate under three scopes.</li>
+<li><b>2 States.</b> Completion by state against the scope rate, with peer-range and reporting-review flags. Hover for dropout and transfer rates.</li>
+<li><b>3 Service setting.</b> Completed, dropped out and transferred for the 8 settings at discharge (detox, residential, outpatient).</li>
+<li><b>4 Length of stay.</b> Completion and dropout rate by stay band, and the cumulative share of dropouts gone by each band.</li>
+<li><b>5 Who completes.</b> Completion gap to the scope rate by primary substance, age band, sex and race.</li>
+</ul>
+</div>
+<div>
+<h2>Filters</h2>
+<ul>
+<li><b>Jurisdictions.</b> All reporting · Exclude reporting-review states (AZ, KY, LA, MD, NC) · Exclude Arizona. Applies to every view.</li>
+<li><b>Census region and State.</b> Narrow every view to one region or one state. The States view keeps all states in the region so you can compare.</li>
+<li><b>Setting group</b> (view 4). Detox, residential, intensive outpatient or outpatient.</li>
+<li><b>Breakdown</b> (view 5). Switches the patient group shown.</li>
+</ul>
+</div>
+</div>
+
+<h2>Read it correctly</h2>
+<div class="cols">
+<ul>
+<li><b>Start with the scope.</b> Arizona reports 190,499 discharges at 99.2% completion. The national rate is 42.6% with it, 34.2% without it, and 41.3% without all five review states.</li>
+<li><b>Kentucky and North Carolina</b> code close to 90% of discharges as transfers, so their low completion is a coding pattern first.</li>
+</ul>
+<ul>
+<li><b>Unknown substance and missing race</b> groups complete at high rates mainly because most of those records come from Arizona.</li>
+<li><b>Act on week one.</b> 44.4% of dropouts leave within 30 days and 24.8% within 7 days.</li>
+</ul>
+</div>
+
+<h2>Data quality</h2>
+<p style="margin:0">Twelve SQL checks run before the views refresh: row count (1,474,025) and column count (76) tie to the SAMHSA codebook, no duplicate <code>CASEID</code>, no blanks in key columns, all discharges in 2023, valid codes, 152 codebook counts reconciled, and no rows lost on the way to the fact table. All 12 pass (<code>dq.check_results</code>).</p>
+
+<div class="foot">Source: SAMHSA, Treatment Episode Data Set: Discharges (TEDS-D) 2023, DS0001 v1. Pipeline: SQL Server star schema (<code>dw.fact_discharge</code> + 7 dimensions) → reporting views (<code>rpt.vw_kpi1</code>-<code>vw_kpi5</code>) → Tableau Cloud extract. Built by Selina Hach, October 2026.</div>
+</body></html>

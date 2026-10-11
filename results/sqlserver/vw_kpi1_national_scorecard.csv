@@ -1,0 +1,3 @@
+discharges,completed,dropouts,early_dropouts,transfers,jurisdictions,completion_rate,dropout_rate,early_dropout_rate,early_share_of_dropouts,transfer_rate,completion_rate_excl_review_states,states_flagged_for_review
+----------,---------,--------,--------------,---------,-------------,---------------,------------,------------------,-----------------------,-------------,----------------------------------,-------------------------
+1474025,627897,324461,143964,370294,49,0.42597445769237291,0.22011906175268398,9.7667271586302812E-2,0.4437020165751816,0.25121283560319535,0.4131172624843511,5

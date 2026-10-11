@@ -1,0 +1,9 @@
+service_setting_key,setting_label,setting_group,discharges,completion_rate,dropout_rate,early_dropout_rate,transfer_rate
+2,Detox 24-hour free-standing residential,Detox (24-hour),176655,0.57873255,0.18411027,0.18240072,0.18970309
+7,Ambulatory non-intensive outpatient,Outpatient,808490,0.39091146,0.22073372,0.04749595,0.28575122
+4,Rehab/residential short term (30 days or fewer),Residential,166160,0.52850866,0.2117477,0.19726168,0.14890467
+6,Ambulatory intensive outpatient,Intensive outpatient,167222,0.25977445,0.27189603,0.11244932,0.3189712
+1,Detox 24-hour hospital inpatient,Detox (24-hour),27753,0.7848521,0.16322559,0.1582892,0.028753648
+3,Rehab/residential hospital (non-detox),Residential,3766,0.5321296,0.13117366,0.12426978,0.0669145
+8,Ambulatory detoxification,Detox (ambulatory),10777,0.6921221,0.09074882,0.048622064,0.038136773
+5,Rehab/residential long term (more than 30 days),Residential,113202,0.41616756,0.23694812,0.14466175,0.23155951

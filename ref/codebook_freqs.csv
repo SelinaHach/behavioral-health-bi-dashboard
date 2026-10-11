@@ -1,0 +1,153 @@
+variable,code,label,frequency
+STFIPS,1,Alabama,11772
+STFIPS,2,Alaska,6648
+STFIPS,4,Arizona,190499
+STFIPS,5,Arkansas,10280
+STFIPS,6,California,107410
+STFIPS,8,Colorado,11032
+STFIPS,9,Connecticut,40124
+STFIPS,11,District of Columbia,1699
+STFIPS,12,Florida,36106
+STFIPS,13,Georgia,34828
+STFIPS,15,Hawaii,5338
+STFIPS,16,Idaho,1766
+STFIPS,17,Illinois,34271
+STFIPS,18,Indiana,18202
+STFIPS,19,Iowa,20381
+STFIPS,20,Kansas,3974
+STFIPS,21,Kentucky,57215
+STFIPS,22,Louisiana,13974
+STFIPS,23,Maine,4698
+STFIPS,24,Maryland,13103
+STFIPS,25,Massachusetts,48828
+STFIPS,26,Michigan,64591
+STFIPS,27,Minnesota,48903
+STFIPS,28,Mississippi,6621
+STFIPS,29,Missouri,20520
+STFIPS,31,Nebraska,4966
+STFIPS,32,Nevada,7280
+STFIPS,33,New Hampshire,1271
+STFIPS,34,New Jersey,78633
+STFIPS,35,New Mexico,258
+STFIPS,36,New York,176971
+STFIPS,37,North Carolina,192774
+STFIPS,38,North Dakota,4153
+STFIPS,39,Ohio,10003
+STFIPS,40,Oklahoma,13473
+STFIPS,41,Oregon,1369
+STFIPS,42,Pennsylvania,17095
+STFIPS,44,Rhode Island,10234
+STFIPS,45,South Carolina,21156
+STFIPS,46,South Dakota,16489
+STFIPS,47,Tennessee,13019
+STFIPS,48,Texas,33368
+STFIPS,49,Utah,15933
+STFIPS,50,Vermont,6680
+STFIPS,51,Virginia,14280
+STFIPS,53,Washington,13555
+STFIPS,55,Wisconsin,2163
+STFIPS,56,Wyoming,3881
+STFIPS,72,Puerto Rico,2238
+SERVICES_D,1,Detox 24-hour hospital inpatient,27753
+SERVICES_D,2,Detox 24-hour free-standing residential,176655
+SERVICES_D,3,Rehab/residential hospital (non-detox),3766
+SERVICES_D,4,Rehab/residential short term (30 days or fewer),166160
+SERVICES_D,5,Rehab/residential long term (more than 30 days),113202
+SERVICES_D,6,Ambulatory intensive outpatient,167222
+SERVICES_D,7,Ambulatory non-intensive outpatient,808490
+SERVICES_D,8,Ambulatory detoxification,10777
+AGE,1,12-14 years old,6630
+AGE,2,15-17 years old,22332
+AGE,3,18-20 years old,27545
+AGE,4,21-24 years old,77333
+AGE,5,25-29 years old,179628
+AGE,6,30-34 years old,264251
+AGE,7,35-39 years old,241859
+AGE,8,40-44 years old,196192
+AGE,9,45-49 years old,138989
+AGE,10,50-54 years old,121706
+AGE,11,55-64 years old,165609
+AGE,12,65 years and older,31951
+SEX,1,Male,966184
+SEX,2,Female,506932
+SEX,-9,Missing/unknown/not collected/invalid,909
+REASON,1,Treatment completed,627897
+REASON,2,Dropped out of treatment,324461
+REASON,3,Terminated by facility,60662
+REASON,4,Transferred to another treatment program or facility,370294
+REASON,5,Incarcerated,16009
+REASON,6,Death,3730
+REASON,7,Other,70972
+SUB1,1,"None",55635
+SUB1,2,"Alcohol",436332
+SUB1,3,"Cocaine/crack",85622
+SUB1,4,"Marijuana/hashish",113384
+SUB1,5,"Heroin",223522
+SUB1,6,"Non-prescription methadone",2232
+SUB1,7,"Other opiates and synthetics",183635
+SUB1,8,"PCP",2602
+SUB1,9,"Hallucinogens",1836
+SUB1,10,"Methamphetamine/speed",180249
+SUB1,11,"Other amphetamines",11260
+SUB1,12,"Other stimulants",3520
+SUB1,13,"Benzodiazepines",12366
+SUB1,14,"Other tranquilizers",125
+SUB1,15,"Barbiturates",1114
+SUB1,16,"Other sedatives or hypnotics",1913
+SUB1,17,"Inhalants",670
+SUB1,18,"Over-the-counter medications",379
+SUB1,19,"Other drugs",9237
+SUB1,-9,"Missing/unknown/not collected/invalid",148392
+RACE,1,"Alaska Native (Aleut Eskimo)",2832
+RACE,2,"American Indian (other than Alaska Native)",59111
+RACE,3,"Asian or Pacific Islander",932
+RACE,4,"Black or African American",261906
+RACE,5,"White",931341
+RACE,6,"Asian",8935
+RACE,7,"Other single race",103717
+RACE,8,"Two or more races",27544
+RACE,9,"Native Hawaiian or Other Pacific Islander",7286
+RACE,-9,"Missing/unknown/not collected/invalid",70421
+ETHNIC,1,"Puerto Rican",41206
+ETHNIC,2,"Mexican",52692
+ETHNIC,3,"Cuban or other specific Hispanic",48100
+ETHNIC,4,"Not of Hispanic or Latino origin",1210352
+ETHNIC,5,"Hispanic or Latino specific origin not specified",45013
+ETHNIC,-9,"Missing/unknown/not collected/invalid",76662
+LOS,1,"1 day",297906
+LOS,2,"2 days",56109
+LOS,3,"3 days",47224
+LOS,4,"4 days",43951
+LOS,5,"5 days",44908
+LOS,6,"6 days",32433
+LOS,7,"7 days",29975
+LOS,8,"8 days",22082
+LOS,9,"9 days",15064
+LOS,10,"10 days",12806
+LOS,11,"11 days",10401
+LOS,12,"12 days",9441
+LOS,13,"13 days",11890
+LOS,14,"14 days",15624
+LOS,15,"15 days",13795
+LOS,16,"16 days",9335
+LOS,17,"17 days",8243
+LOS,18,"18 days",7673
+LOS,19,"19 days",7629
+LOS,20,"20 days",9034
+LOS,21,"21 days",14726
+LOS,22,"22 days",11975
+LOS,23,"23 days",8752
+LOS,24,"24 days",7922
+LOS,25,"25 days",7998
+LOS,26,"26 days",8501
+LOS,27,"27 days",14178
+LOS,28,"28 days",26293
+LOS,29,"29 days",16819
+LOS,30,"30 days",12607
+LOS,31,"31 to 45 days",91302
+LOS,32,"46 to 60 days",67744
+LOS,33,"61 to 90 days",109979
+LOS,34,"91 to 120 days",91049
+LOS,35,"121 to 180 days",86853
+LOS,36,"181 to 365 days",105267
+LOS,37,"More than a year",86537

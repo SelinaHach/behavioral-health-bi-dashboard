@@ -1,0 +1,29 @@
+dimension_name,member,discharges,completion_rate,dropout_rate
+Primary substance,None reported,55635,0.73087084,0.04941134
+Primary substance,Opioids,409389,0.23702395,0.24289368
+Primary substance,Hallucinogens,4438,0.39094186,0.29923388
+Primary substance,Unknown,148392,0.8451601,0.0550434
+Primary substance,Alcohol,436332,0.49523985,0.22773026
+Primary substance,Cannabis,113384,0.36857933,0.29206944
+Primary substance,Stimulants,280651,0.3420369,0.26514426
+Primary substance,Sedatives/tranquilizers,15518,0.42028612,0.20569661
+Primary substance,Other,10286,0.25811782,0.26161772
+Age band,25-34,443879,0.410301,0.22728266
+Age band,55+,197560,0.49488255,0.20659547
+Age band,18-24,104878,0.45139113,0.2551822
+Age band,35-44,438051,0.41123977,0.21458916
+Age band,45-54,260695,0.4223326,0.20309557
+Age band,Under 18,28962,0.35974726,0.31247842
+Sex,Female,506932,0.41459802,0.23137029
+Sex,Male,966184,0.43195188,0.21416728
+Sex,Missing/unknown/not collected/invalid,909,0.4169417,0.27172717
+Race,Black or African American,261906,0.37556222,0.26425892
+Race,American Indian (other than Alaska Native),59111,0.7590635,0.111332916
+Race,Other single race,103717,0.3960103,0.33907652
+Race,Asian,8935,0.4651371,0.2640179
+Race,Native Hawaiian or Other Pacific Islander,7286,0.38786715,0.25226462
+Race,Asian or Pacific Islander,932,0.1223176,0.02253219
+Race,Missing/unknown/not collected/invalid,70421,0.7982278,0.06263757
+Race,White,931341,0.39672044,0.21086906
+Race,Two or more races,27544,0.3507842,0.28605142
+Race,Alaska Native (Aleut Eskimo),2832,0.40289548,0.21257062

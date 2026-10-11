@@ -1,0 +1,645 @@
+<title>How Many Patients Finish Addiction Treatment?</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: a field-executive console. Question + answer up top, one scope bar that drives every view,
+   five numbered KPI tabs (the five Tableau dashboard tabs), data-quality ledger at the foot. */
+:root {
+  --bg: #f3f6f6;
+  --surface: #ffffff;
+  --ink: #0f1f24;
+  --ink-2: #44575c;
+  --muted: #7a8a8e;
+  --grid: #e2e8e8;
+  --axis: #c3cdce;
+  --line: rgba(15, 31, 36, 0.10);
+  --accent: #0d6b66;
+  --accent-wash: #e3f0ef;
+  --s1: #2a78d6;  /* completed */
+  --s2: #eb6834;  /* dropped out */
+  --s3: #1baf7a;  /* transferred */
+  --s4: #eda100;  /* terminated */
+  --s5: #a5aeb0;  /* other exits (neutral) */
+  --flag: #9a5b00;
+  --flag-wash: #fff3dc;
+  --good: #0a7d3a;
+  --bad: #b3362f;
+  --ref: #0f1f24;
+  --font-display: "IBM Plex Sans Condensed", "Arial Narrow", system-ui, sans-serif;
+  --font-body: "IBM Plex Sans", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-data: "IBM Plex Mono", ui-monospace, "SFMono-Regular", Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0e1416; --surface: #151d20; --ink: #eef4f4; --ink-2: #b7c4c6; --muted: #829194;
+    --grid: #233034; --axis: #34454a; --line: rgba(255,255,255,0.10);
+    --accent: #3fb7ad; --accent-wash: #16302f;
+    --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #5d6b6e;
+    --flag: #f2b24a; --flag-wash: #33270f; --good: #3ccf78; --bad: #f07a72; --ref: #eef4f4;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #0e1416; --surface: #151d20; --ink: #eef4f4; --ink-2: #b7c4c6; --muted: #829194;
+  --grid: #233034; --axis: #34454a; --line: rgba(255,255,255,0.10);
+  --accent: #3fb7ad; --accent-wash: #16302f;
+  --s1: #3987e5; --s2: #d95926; --s3: #199e70; --s4: #c98500; --s5: #5d6b6e;
+  --flag: #f2b24a; --flag-wash: #33270f; --good: #3ccf78; --bad: #f07a72; --ref: #eef4f4;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+body { background: var(--bg); color: var(--ink); font: 400 15px/1.5 var(--font-body); }
+.wrap { max-width: 1180px; margin: 0 auto; padding: 28px 20px 56px; display: grid; gap: 22px; }
+h1, h2, h3 { font-family: var(--font-display); font-weight: 600; margin: 0; text-wrap: balance; letter-spacing: -0.005em; }
+.eyebrow { font: 500 12px/1.2 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.num { font-variant-numeric: tabular-nums; }
+
+/* Header */
+.head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 24px; align-items: end; }
+.head h1 { font-size: clamp(28px, 4.2vw, 44px); line-height: 1.05; max-width: 18ch; }
+.head p { margin: 10px 0 0; color: var(--ink-2); max-width: 62ch; }
+.answer { text-align: right; }
+.answer .big { font: 600 clamp(52px, 8vw, 84px)/0.95 var(--font-display); color: var(--accent); }
+.answer .sub { color: var(--ink-2); font-size: 14px; }
+@media (max-width: 720px) { .head { grid-template-columns: 1fr; } .answer { text-align: left; } }
+
+/* Scope bar */
+.scope { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 14px 16px;
+  display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: end; }
+.field { display: grid; gap: 6px; min-width: 0; }
+.field label, .field .lbl { font: 500 11.5px/1 var(--font-data); letter-spacing: 0.06em; text-transform: uppercase; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--axis); border-radius: 8px; overflow: hidden; flex-wrap: wrap; }
+.seg button { font: 500 13.5px/1 var(--font-body); color: var(--ink-2); background: transparent; border: 0; padding: 9px 12px; cursor: pointer; }
+.seg button + button { border-left: 1px solid var(--axis); }
+.seg button[aria-pressed="true"] { background: var(--accent); color: var(--surface); }
+.seg button:hover:not([aria-pressed="true"]) { background: var(--accent-wash); }
+select { font: 400 14px/1.2 var(--font-body); color: var(--ink); background: var(--surface); border: 1px solid var(--axis);
+  border-radius: 8px; padding: 8px 30px 8px 10px; max-width: 100%; }
+button:focus-visible, select:focus-visible, [tabindex]:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.scope-note { flex-basis: 100%; font-size: 13px; color: var(--ink-2); margin: 0; }
+.scope-note b { color: var(--ink); font-weight: 600; }
+
+/* Tabs */
+.tabs { display: flex; gap: 4px; border-bottom: 1px solid var(--line); overflow-x: auto; }
+.tab { font: 500 14.5px/1 var(--font-body); color: var(--ink-2); background: none; border: 0; border-bottom: 2px solid transparent;
+  padding: 12px 14px 11px; cursor: pointer; white-space: nowrap; display: inline-flex; gap: 8px; align-items: baseline; }
+.tab .k { font: 500 12px/1 var(--font-data); color: var(--muted); }
+.tab[aria-selected="true"] { color: var(--ink); border-bottom-color: var(--accent); }
+.panel { display: grid; gap: 18px; }
+.panel-head { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px 20px; align-items: end; }
+.panel-head h2 { font-size: 24px; }
+.panel-head p { margin: 4px 0 0; color: var(--ink-2); max-width: 70ch; font-size: 14.5px; }
+
+.card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; min-width: 0; }
+.card h3 { font-size: 17px; }
+.card .cap { color: var(--ink-2); font-size: 13.5px; margin: 4px 0 12px; }
+.grid2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+@media (max-width: 860px) { .grid2 { grid-template-columns: 1fr; } }
+
+/* KPI tiles */
+.tiles { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; background: var(--surface);
+  border: 1px solid var(--line); border-radius: 10px; }
+.tile { padding: 16px 18px; display: grid; gap: 6px; align-content: start; }
+.tile + .tile { border-left: 1px solid var(--line); }
+.tile .v { font: 600 32px/1 var(--font-display); }
+.tile .d { font-size: 13px; color: var(--ink-2); }
+.tile.lead .v { color: var(--accent); }
+@media (max-width: 900px) { .tiles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .tile + .tile { border-left: 0; } .tile { border-top: 1px solid var(--line); } .tile:nth-child(-n+2) { border-top: 0; }
+  .tile:nth-child(even) { border-left: 1px solid var(--line); } }
+
+/* Charts */
+svg { display: block; width: 100%; height: auto; overflow: visible; }
+svg text { fill: var(--ink-2); font: 400 12px var(--font-body); }
+svg .tick { fill: var(--muted); font: 400 11.5px var(--font-data); }
+svg .lab-strong { fill: var(--ink); font-weight: 500; }
+.gridline { stroke: var(--grid); stroke-width: 1; }
+.baseline { stroke: var(--axis); stroke-width: 1; }
+.refline { stroke: var(--ref); stroke-width: 1.5; stroke-dasharray: 4 3; }
+.hit { fill: transparent; cursor: default; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 13px; color: var(--ink-2); margin: 0 0 10px; padding: 0; list-style: none; }
+.legend li { display: inline-flex; align-items: center; gap: 7px; }
+.sw { width: 12px; height: 12px; border-radius: 3px; display: inline-block; }
+.sw.line { height: 3px; border-radius: 2px; width: 16px; }
+.chip { display: inline-flex; align-items: center; gap: 5px; font: 500 11.5px/1 var(--font-body); padding: 4px 7px; border-radius: 999px;
+  background: var(--flag-wash); color: var(--flag); white-space: nowrap; }
+.chip.neutral { background: var(--accent-wash); color: var(--accent); }
+.chip svg { width: 11px; height: 11px; }
+.callout { border-left: 3px solid var(--accent); padding: 2px 0 2px 12px; color: var(--ink-2); font-size: 14px; margin: 0; }
+.callout b { color: var(--ink); }
+
+/* Tables */
+.tbl-wrap { overflow-x: auto; }
+table { border-collapse: collapse; width: 100%; font-size: 13.5px; }
+th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { font: 500 11.5px/1.2 var(--font-data); letter-spacing: 0.05em; text-transform: uppercase; color: var(--muted); }
+td.r, th.r { text-align: right; font-variant-numeric: tabular-nums; }
+@media (max-width: 640px) { #tb-dq th:nth-child(3), #tb-dq td:nth-child(3) { display: none; } }
+.pass { color: var(--good); font-weight: 600; } .fail { color: var(--bad); font-weight: 600; }
+details summary { cursor: pointer; color: var(--accent); font-size: 13.5px; font-weight: 500; }
+
+/* Tooltip */
+#tip { position: fixed; z-index: 10; pointer-events: none; background: var(--ink); color: var(--surface); font-size: 12.5px; line-height: 1.4;
+  padding: 8px 10px; border-radius: 6px; max-width: 260px; opacity: 0; transition: opacity .08s; }
+#tip b { font-weight: 600; }
+.foot { color: var(--muted); font-size: 12.5px; display: grid; gap: 6px; }
+.foot a { color: var(--accent); }
+@media (prefers-reduced-motion: reduce) { #tip { transition: none; } }
+</style>
+
+<div class="wrap">
+  <header class="head">
+    <div>
+      <div class="eyebrow">Behavioral Health BI · SAMHSA TEDS-D 2023 · Discharge grain</div>
+      <h1>How Many Patients Finish Addiction Treatment?</h1>
+      <p>Outcomes for <span id="hdr-n" class="num">1,474,025</span> substance use treatment discharges reported by 48 states, DC and Puerto Rico in 2023. Use the scope bar to drop states whose coding practice distorts the national rate, or to focus on one region or state.</p>
+    </div>
+    <div class="answer">
+      <div class="big num" id="hdr-rate">42.6%</div>
+      <div class="sub" id="hdr-sub">completed treatment, all jurisdictions</div>
+    </div>
+  </header>
+
+  <section class="scope" aria-label="Scope">
+    <div class="field">
+      <span class="lbl" id="lbl-scope">Jurisdictions</span>
+      <div class="seg" role="group" aria-labelledby="lbl-scope" id="scope-seg">
+        <button type="button" data-scope="all" aria-pressed="true">All reporting</button>
+        <button type="button" data-scope="noreview" aria-pressed="false">Exclude reporting-review states</button>
+        <button type="button" data-scope="noaz" aria-pressed="false">Exclude Arizona</button>
+      </div>
+    </div>
+    <div class="field">
+      <label for="f-region">Census region</label>
+      <select id="f-region"></select>
+    </div>
+    <div class="field">
+      <label for="f-state">State</label>
+      <select id="f-state"></select>
+    </div>
+    <p class="scope-note" id="scope-note"></p>
+  </section>
+
+  <nav class="tabs" role="tablist" aria-label="KPI views">
+    <button class="tab" role="tab" id="t-score" aria-controls="p-score" aria-selected="true"><span class="k">1</span>Scorecard</button>
+    <button class="tab" role="tab" id="t-state" aria-controls="p-state" aria-selected="false"><span class="k">2</span>States</button>
+    <button class="tab" role="tab" id="t-setting" aria-controls="p-setting" aria-selected="false"><span class="k">3</span>Service setting</button>
+    <button class="tab" role="tab" id="t-los" aria-controls="p-los" aria-selected="false"><span class="k">4</span>Length of stay</button>
+    <button class="tab" role="tab" id="t-who" aria-controls="p-who" aria-selected="false"><span class="k">5</span>Who completes</button>
+  </nav>
+
+  <!-- 1 Scorecard -->
+  <section class="panel" id="p-score" role="tabpanel" aria-labelledby="t-score">
+    <div class="tiles" id="tiles"></div>
+    <div class="card">
+      <h3>How discharges end</h3>
+      <p class="cap">Share of discharges by reason (REASON). Completion counts only "all parts of the treatment plan completed."</p>
+      <ul class="legend" id="lg-outcome"></ul>
+      <div id="ch-outcome"></div>
+    </div>
+    <div class="grid2">
+      <div class="card">
+        <h3>What moves the national number</h3>
+        <p class="cap">The same metric under three jurisdiction scopes. State coding practice, not patient behavior, explains most of the gap.</p>
+        <div class="tbl-wrap"><table id="tb-sens"></table></div>
+      </div>
+      <div class="card">
+        <h3>Where to look first</h3>
+        <p class="cap">Generated from the current scope.</p>
+        <div id="insights" style="display:grid;gap:10px"></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2 States -->
+  <section class="panel" id="p-state" role="tabpanel" aria-labelledby="t-state" hidden>
+    <div class="panel-head">
+      <div><h2>Completion by state</h2>
+        <p>Peer range = within 1.5 standard deviations of the mean state rate (states with 1,000+ discharges). A reporting-review flag means one discharge reason covers 80%+ of a state's records, so its rate reflects how the state codes discharges.</p></div>
+      <div class="field"><span class="lbl" id="lbl-sort">Sort</span>
+        <div class="seg" role="group" aria-labelledby="lbl-sort" id="sort-seg">
+          <button type="button" data-sort="rate" aria-pressed="true">Completion rate</button>
+          <button type="button" data-sort="n" aria-pressed="false">Discharges</button>
+          <button type="button" data-sort="name" aria-pressed="false">Name</button>
+        </div></div>
+    </div>
+    <div class="card">
+      <ul class="legend"><li><span class="sw" style="background:var(--s1)"></span>Completion rate</li>
+        <li><span class="sw line" style="background:var(--ref)"></span>Rate for current scope</li>
+        <li><span class="chip">! Reporting review</span></li><li><span class="chip neutral">Peer-range flag</span></li></ul>
+      <div id="ch-state"></div>
+    </div>
+  </section>
+
+  <!-- 3 Service setting -->
+  <section class="panel" id="p-setting" role="tabpanel" aria-labelledby="t-setting" hidden>
+    <div class="panel-head"><div><h2>Completion by service setting</h2>
+      <p>Setting at discharge (SERVICES_D). Short, structured settings finish more often; intensive outpatient loses the most patients to dropout and transfer.</p></div></div>
+    <div class="card">
+      <ul class="legend"><li><span class="sw" style="background:var(--s1)"></span>Completed</li><li><span class="sw" style="background:var(--s2)"></span>Dropped out</li><li><span class="sw" style="background:var(--s3)"></span>Transferred</li></ul>
+      <div id="ch-setting"></div>
+    </div>
+  </section>
+
+  <!-- 4 Length of stay -->
+  <section class="panel" id="p-los" role="tabpanel" aria-labelledby="t-los" hidden>
+    <div class="panel-head"><div><h2>Length of stay and early dropout</h2>
+      <p>LOS codes 1-30 are exact days; 31-37 are SAMHSA's grouped ranges. Early dropout = dropped out with a stay of 30 days or fewer.</p></div>
+      <div class="field"><label for="f-group">Setting group</label><select id="f-group"></select></div></div>
+    <p class="callout" id="los-callout"></p>
+    <div class="grid2">
+      <div class="card"><h3>Outcome rate by length of stay</h3><p class="cap">Share of discharges in each band.</p>
+        <ul class="legend"><li><span class="sw line" style="background:var(--s1)"></span>Completion rate</li><li><span class="sw line" style="background:var(--s2)"></span>Dropout rate</li></ul>
+        <div id="ch-los"></div></div>
+      <div class="card"><h3>When dropouts leave</h3><p class="cap">Cumulative share of all dropouts by length of stay.</p>
+        <div id="ch-cum"></div></div>
+    </div>
+  </section>
+
+  <!-- 5 Who completes -->
+  <section class="panel" id="p-who" role="tabpanel" aria-labelledby="t-who" hidden>
+    <div class="panel-head"><div><h2>Who completes</h2>
+      <p>Completion rate by patient group, shown as the gap to the rate for the current scope. Groups under 500 discharges in scope are greyed.</p></div>
+      <div class="field"><span class="lbl" id="lbl-dim">Breakdown</span>
+        <div class="seg" role="group" aria-labelledby="lbl-dim" id="dim-seg">
+          <button type="button" data-dim="Primary substance" aria-pressed="true">Primary substance</button>
+          <button type="button" data-dim="Age band" aria-pressed="false">Age</button>
+          <button type="button" data-dim="Sex" aria-pressed="false">Sex</button>
+          <button type="button" data-dim="Race" aria-pressed="false">Race</button>
+        </div></div></div>
+    <div class="card">
+      <ul class="legend"><li><span class="sw" style="background:var(--s1)"></span>Above scope rate</li><li><span class="sw" style="background:var(--s2)"></span>Below scope rate</li></ul>
+      <div id="ch-who"></div>
+      <p class="cap" id="who-note" style="margin:12px 0 0"></p></div>
+  </section>
+
+  <section class="card" aria-labelledby="dq-h">
+    <h3 id="dq-h">Data quality ledger</h3>
+    <p class="cap">Twelve SQL checks run on the staged file and the star schema before any view is built. Expected values come from the SAMHSA codebook.</p>
+    <div class="tbl-wrap"><table id="tb-dq"></table></div>
+  </section>
+
+  <footer class="foot">
+    <div>Source: Substance Abuse and Mental Health Services Administration, Treatment Episode Data Set: Discharges (TEDS-D) 2023, public use file DS0001 v1. Delaware, Montana and West Virginia did not report sufficient 2023 data. TEDS counts discharges (episodes), not unique people, and covers mainly publicly funded facilities.</div>
+    <div>Built by Selina Hach. Pipeline: Microsoft SQL Server star schema → reporting views → Tableau Cloud. This page is a web preview of the Tableau dashboard, computed from the same views.</div>
+  </footer>
+</div>
+<div id="tip" role="tooltip"></div>
+
+<script>
+const D = __DATA__;
+const fmtN = n => n.toLocaleString("en-US");
+const pct = (x, d = 1) => (x * 100).toFixed(d) + "%";
+const pp = x => (x >= 0 ? "+" : "−") + Math.abs(x * 100).toFixed(1) + " pp";
+const esc = s => String(s).replace(/[&<>"]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+const NS = "http://www.w3.org/2000/svg";
+
+const states = D.states.map(r => ({ key: r[0], name: r[1], abbr: r[2], region: r[3], n: r[4], cflag: r[5], rflag: r[6], top: r[7] }));
+const stateByKey = Object.fromEntries(states.map(s => [s.key, s]));
+const review = new Set(states.filter(s => s.rflag !== "No reporting flag").map(s => s.key));
+const AZ = 4;
+const settings = Object.fromEntries(D.settings.map(r => [r[0], { label: r[1], group: r[2] }]));
+const reasons = Object.fromEntries(D.reasons.map(r => [r[0], { label: r[1], group: r[2] }]));
+const bands = D.los_bands.map(r => ({ sort: r[0], label: r[1] }));
+
+const st = { scope: "all", region: "", state: "", sort: "rate", group: "All settings", dim: "Primary substance", tab: "score" };
+try { const t = localStorage.getItem("tedsTab"); if (t) st.tab = t; } catch (e) {}
+
+function inScope(k) {
+  if (st.scope === "noreview" && review.has(k)) return false;
+  if (st.scope === "noaz" && k === AZ) return false;
+  if (st.region && stateByKey[k].region !== st.region) return false;
+  if (st.state && String(k) !== st.state) return false;
+  return true;
+}
+function inScopeNoState(k) {
+  if (st.scope === "noreview" && review.has(k)) return false;
+  if (st.scope === "noaz" && k === AZ) return false;
+  if (st.region && stateByKey[k].region !== st.region) return false;
+  return true;
+}
+function totals(pred = inScope) {
+  const t = { n: 0, c: 0, d: 0, e: 0, x: 0 };
+  for (const [k, , n, c, d, e, x] of D.cube_setting) if (pred(k)) { t.n += n; t.c += c; t.d += d; t.e += e; t.x += x; }
+  return t;
+}
+function scopeLabel() {
+  if (st.state) return stateByKey[+st.state].name;
+  const base = { all: "all jurisdictions", noreview: "excluding reporting-review states", noaz: "excluding Arizona" }[st.scope];
+  return st.region ? `${st.region}, ${base}` : base;
+}
+
+/* ---------- tooltip ---------- */
+const tip = document.getElementById("tip");
+function showTip(ev, html) { tip.innerHTML = html; tip.style.opacity = 1; moveTip(ev); }
+function moveTip(ev) {
+  const pad = 14, w = tip.offsetWidth, h = tip.offsetHeight;
+  let x = ev.clientX + pad, y = ev.clientY + pad;
+  if (x + w > innerWidth - 8) x = ev.clientX - w - pad;
+  if (y + h > innerHeight - 8) y = ev.clientY - h - pad;
+  tip.style.left = x + "px"; tip.style.top = y + "px";
+}
+function hideTip() { tip.style.opacity = 0; }
+function bindTip(el, html) {
+  el.addEventListener("mouseenter", e => showTip(e, html));
+  el.addEventListener("mousemove", moveTip);
+  el.addEventListener("mouseleave", hideTip);
+}
+function el(tag, attrs = {}, parent) {
+  const n = document.createElementNS(NS, tag);
+  for (const k in attrs) n.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(n);
+  return n;
+}
+function txt(parent, x, y, s, attrs = {}) { const t = el("text", { x, y, ...attrs }, parent); t.textContent = s; return t; }
+const roundRight = (x, y, w, h, r = 4) => {
+  if (w <= 0) return "";
+  r = Math.min(r, w, h / 2);
+  return `M${x},${y}h${w - r}a${r},${r} 0 0 1 ${r},${r}v${h - 2 * r}a${r},${r} 0 0 1 -${r},${r}h-${w - r}z`;
+};
+const roundLeft = (x, y, w, h, r = 4) => {
+  if (w <= 0) return "";
+  r = Math.min(r, w, h / 2);
+  return `M${x + w},${y}h-${w - r}a${r},${r} 0 0 0 -${r},${r}v${h - 2 * r}a${r},${r} 0 0 0 ${r},${r}h${w - r}z`;
+};
+
+/* ---------- header + scope ---------- */
+function renderHeader() {
+  const t = totals();
+  document.getElementById("hdr-n").textContent = fmtN(t.n);
+  document.getElementById("hdr-rate").textContent = t.n ? pct(t.c / t.n) : "–";
+  document.getElementById("hdr-sub").textContent = "completed treatment, " + scopeLabel();
+  const excluded = states.filter(s => !inScopeNoState(s.key));
+  const note = document.getElementById("scope-note");
+  const flagged = states.filter(s => review.has(s.key)).map(s => s.abbr).join(", ");
+  note.innerHTML = `Showing <b>${fmtN(t.n)}</b> discharges, ${scopeLabel()}. ` +
+    (st.scope === "noreview" ? `Removed for reporting review: ${flagged}. ` : st.scope === "noaz" ? "Arizona codes 99.2% of its discharges as completed. " : "") +
+    (excluded.length && !st.region && st.scope === "all" ? "" : "");
+}
+function fillSelects() {
+  const reg = document.getElementById("f-region");
+  const regions = [...new Set(states.map(s => s.region))].sort();
+  reg.innerHTML = `<option value="">All regions</option>` + regions.map(r => `<option>${esc(r)}</option>`).join("");
+  reg.value = st.region;
+  const sel = document.getElementById("f-state");
+  const list = states.filter(s => inScopeNoState(s.key));
+  if (st.state && !list.some(s => String(s.key) === st.state)) st.state = "";
+  sel.innerHTML = `<option value="">All in scope (${list.length})</option>` + list.map(s => `<option value="${s.key}">${esc(s.name)}</option>`).join("");
+  sel.value = st.state;
+  const g = document.getElementById("f-group");
+  const groups = ["All settings", ...new Set(Object.values(settings).map(s => s.group))];
+  g.innerHTML = groups.map(x => `<option>${esc(x)}</option>`).join(""); g.value = st.group;
+}
+
+/* ---------- 1 scorecard ---------- */
+const GROUPS = [["Completed", "--s1"], ["Dropped out", "--s2"], ["Transferred", "--s3"], ["Terminated by facility", "--s4"], ["Other exit", "--s5"]];
+function renderScore() {
+  const t = totals();
+  const tiles = [
+    ["Discharges", fmtN(t.n), "treatment episodes ended in 2023", false],
+    ["Completion rate", pct(t.c / t.n), `${fmtN(t.c)} completed the full plan`, true],
+    ["Dropout rate", pct(t.d / t.n), `${fmtN(t.d)} left against advice`, false],
+    ["Early dropout", pct(t.d ? t.e / t.d : 0), "of dropouts left within 30 days", false],
+    ["Transfer rate", pct(t.x / t.n), "moved to another program", false],
+  ];
+  document.getElementById("tiles").innerHTML = tiles.map(([l, v, d, lead]) =>
+    `<div class="tile${lead ? " lead" : ""}"><div class="eyebrow">${l}</div><div class="v num">${v}</div><div class="d">${d}</div></div>`).join("");
+
+  const g = Object.fromEntries(GROUPS.map(([k]) => [k, 0]));
+  for (const [k, r, n] of D.cube_reason) if (inScope(k)) g[reasons[r].group] += n;
+  const tot = Object.values(g).reduce((a, b) => a + b, 0);
+  document.getElementById("lg-outcome").innerHTML = GROUPS.map(([k, c]) =>
+    `<li><span class="sw" style="background:var(${c})"></span>${k} <span class="num">${pct(g[k] / tot)}</span></li>`).join("");
+  const box = document.getElementById("ch-outcome");
+  box.innerHTML = "";
+  const W = box.clientWidth || 1000, H = 58;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Share of discharges by reason" }, box);
+  let x = 0; const gap = 2;
+  GROUPS.forEach(([k, c], i) => {
+    const w = (g[k] / tot) * W; if (w <= 0) return;
+    const isFirst = i === 0, isLast = i === GROUPS.length - 1;
+    const ww = Math.max(0, w - (isLast ? 0 : gap));
+    const r = el("rect", { x, y: 0, width: ww, height: 34, rx: (isFirst || isLast) ? 4 : 0, fill: `var(${c})` }, svg);
+    bindTip(r, `<b>${k}</b><br>${fmtN(g[k])} discharges · ${pct(g[k] / tot)}`);
+    if (ww > 44) txt(svg, x + 2, 54, pct(g[k] / tot, 1), { class: "lab-strong num" });
+    x += w;
+  });
+
+  // sensitivity table (ignores scope buttons, respects region/state)
+  const rows = [["All reporting jurisdictions", k => (!st.region || stateByKey[k].region === st.region) && (!st.state || String(k) === st.state)],
+    ["Excluding 5 reporting-review states", k => !review.has(k) && (!st.region || stateByKey[k].region === st.region) && (!st.state || String(k) === st.state)],
+    ["Excluding Arizona only", k => k !== AZ && (!st.region || stateByKey[k].region === st.region) && (!st.state || String(k) === st.state)]];
+  document.getElementById("tb-sens").innerHTML = `<thead><tr><th>Scope</th><th class="r">Discharges</th><th class="r">Completion</th><th class="r">Dropout</th></tr></thead><tbody>` +
+    rows.map(([l, p]) => { const t2 = totals(p); return `<tr><td>${l}</td><td class="r">${fmtN(t2.n)}</td><td class="r">${t2.n ? pct(t2.c / t2.n) : "–"}</td><td class="r">${t2.n ? pct(t2.d / t2.n) : "–"}</td></tr>`; }).join("") + "</tbody>";
+
+  // insights
+  const set = aggSetting();
+  const best = set.slice().sort((a, b) => b.rate - a.rate)[0], worst = set.filter(s => s.n >= 1000).sort((a, b) => a.rate - b.rate)[0];
+  const los = aggLos("All settings");
+  const dTot = los.reduce((a, b) => a + b.d, 0), d30 = los.filter(b => b.sort <= 4).reduce((a, b) => a + b.d, 0), d7 = los.filter(b => b.sort <= 2).reduce((a, b) => a + b.d, 0);
+  const who = aggWho("Primary substance").filter(w => w.n >= 500 && w.member !== "Unknown" && w.member !== "None reported").sort((a, b) => a.rate - b.rate);
+  const items = [
+    best && worst ? `<b>${esc(worst.label)}</b> completes ${pct(worst.rate)} vs <b>${esc(best.label)}</b> at ${pct(best.rate)}.` : "",
+    dTot ? `<b>${pct(d30 / dTot)}</b> of dropouts leave within 30 days, and ${pct(d7 / dTot)} within the first week.` : "",
+    who.length > 1 ? `Patients with <b>${esc(who[0].member.toLowerCase())}</b> as primary substance complete ${pct(who[0].rate)}, against ${pct(who[who.length - 1].rate)} for ${esc(who[who.length - 1].member.toLowerCase())}.` : "",
+    st.scope === "all" && !st.state ? `<b>Arizona</b> reports 190,499 discharges at 99.2% completion. Without it the national rate falls to ${pct(totals(k => k !== AZ && (!st.region || stateByKey[k].region === st.region)).c / Math.max(1, totals(k => k !== AZ && (!st.region || stateByKey[k].region === st.region)).n))}.` : "",
+  ].filter(Boolean);
+  document.getElementById("insights").innerHTML = items.map(s => `<p class="callout">${s}</p>`).join("");
+}
+
+/* ---------- 2 states ---------- */
+const ICON = `<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M6 1 11 10.5H1Z" fill="currentColor"/><rect x="5.4" y="4.3" width="1.2" height="3.4" fill="var(--flag-wash)"/><rect x="5.4" y="8.2" width="1.2" height="1.2" fill="var(--flag-wash)"/></svg>`;
+function renderStates() {
+  const agg = {};
+  for (const [k, , n, c, d, e, x] of D.cube_setting) { const a = agg[k] || (agg[k] = { n: 0, c: 0, d: 0, x: 0 }); a.n += n; a.c += c; a.d += d; a.x += x; }
+  let list = states.filter(s => inScopeNoState(s.key)).map(s => ({ ...s, ...agg[s.key], rate: agg[s.key].c / agg[s.key].n }));
+  const ref = totals(inScopeNoState); const refRate = ref.c / ref.n;
+  list.sort(st.sort === "rate" ? (a, b) => b.rate - a.rate : st.sort === "n" ? (a, b) => b.n - a.n : (a, b) => a.name.localeCompare(b.name));
+  const box = document.getElementById("ch-state"); box.innerHTML = "";
+  const W = box.clientWidth || 1000, narrow = W < 640;
+  const rowH = 24, top = 26, labelW = narrow ? 44 : 160, chipW = narrow ? 0 : 280;
+  const plotW = W - labelW - chipW - 52;
+  const H = top + list.length * rowH + 8;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H + 16}`, role: "img", "aria-label": "Completion rate by state" }, box);
+  const X = v => labelW + v * plotW;
+  [0, .25, .5, .75, 1].forEach(v => { el("line", { x1: X(v), x2: X(v), y1: top - 6, y2: H - 4, class: "gridline" }, svg); txt(svg, X(v), 14, pct(v, 0), { class: "tick", "text-anchor": "middle" }); });
+  list.forEach((s, i) => {
+    const y = top + i * rowH;
+    const g = el("g", { tabindex: 0, "aria-label": `${s.name} ${pct(s.rate)}` }, svg);
+    txt(g, labelW - 10, y + 15, narrow ? s.abbr : s.name, { "text-anchor": "end", class: st.state === String(s.key) ? "lab-strong" : "" });
+    el("path", { d: roundRight(X(0), y + 5, Math.max(1, X(s.rate) - X(0)), 14), fill: "var(--s1)", opacity: s.n < 1000 ? 0.45 : 1 }, g);
+    txt(g, X(s.rate) + 6, y + 16, pct(s.rate) + (narrow && s.rflag !== "No reporting flag" ? "  ▲ review" : ""), { class: "tick" });
+    if (!narrow) {
+      let cx = labelW + plotW + 52;
+      const fo = el("foreignObject", { x: cx, y: y + 1, width: chipW, height: 22 }, g);
+      const chips = [];
+      if (s.rflag !== "No reporting flag") chips.push(`<span class="chip">${ICON}Review · ${pct(s.top, 0)} one reason</span>`);
+      if (s.cflag !== "Within peer range") chips.push(`<span class="chip neutral">${esc(s.cflag.replace(" peer range", " peers").replace("Low volume (<1,000)", "Low volume"))}</span>`);
+      fo.innerHTML = `<div xmlns="http://www.w3.org/1999/xhtml" style="display:flex;gap:4px">${chips.join("")}</div>`;
+    }
+    const hit = el("rect", { x: 0, y, width: W, height: rowH, class: "hit" }, g);
+    bindTip(hit, `<b>${esc(s.name)}</b> · ${esc(s.region)}<br>${fmtN(s.n)} discharges<br>Completed ${pct(s.rate)} (${pp(s.rate - refRate)} vs scope)<br>Dropped out ${pct(s.d / s.n)} · Transferred ${pct(s.x / s.n)}<br>${esc(s.cflag)}${s.rflag !== "No reporting flag" ? "<br>Reporting review: " + pct(s.top) + " of records share one reason" : ""}`);
+  });
+  el("line", { x1: X(refRate), x2: X(refRate), y1: top - 6, y2: H + 10, class: "refline" }, svg);
+  txt(svg, X(refRate) + 5, H + 8, "Scope rate " + pct(refRate), { class: "lab-strong", "font-size": 11.5 });
+}
+
+/* ---------- 3 setting ---------- */
+function aggSetting() {
+  const a = {};
+  for (const [k, sk, n, c, d, e, x] of D.cube_setting) if (inScope(k)) { const o = a[sk] || (a[sk] = { key: sk, n: 0, c: 0, d: 0, e: 0, x: 0 }); o.n += n; o.c += c; o.d += d; o.e += e; o.x += x; }
+  return Object.values(a).map(o => ({ ...o, label: settings[o.key].label, group: settings[o.key].group, rate: o.c / o.n }));
+}
+function renderSetting() {
+  const list = aggSetting().sort((a, b) => b.rate - a.rate);
+  const tot = list.reduce((s, o) => s + o.n, 0);
+  const box = document.getElementById("ch-setting"); box.innerHTML = "";
+  const W = box.clientWidth || 1000, narrow = W < 640;
+  const labelW = narrow ? 0 : 330, rowH = narrow ? 84 : 58, top = 24, plotW = W - labelW - (narrow ? 56 : 70);
+  const bOff = narrow ? 38 : 4;
+  const H = top + list.length * rowH;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": "Outcome rates by service setting" }, box);
+  const X = v => labelW + v * plotW;
+  [0, .2, .4, .6, .8].forEach(v => { el("line", { x1: X(v), x2: X(v), y1: top - 6, y2: H - 4, class: "gridline" }, svg); txt(svg, X(v), 12, pct(v, 0), { class: "tick", "text-anchor": "middle" }); });
+  list.forEach((s, i) => {
+    const y = top + i * rowH;
+    const lx = narrow ? 0 : labelW - 14, anchor = narrow ? "start" : "end";
+    txt(svg, lx, y + 16, s.label, { "text-anchor": anchor, class: "lab-strong", "font-size": 13 });
+    txt(svg, lx, y + 32, `${fmtN(s.n)} · ${pct(s.n / tot)} of discharges`, { "text-anchor": anchor, class: "tick" });
+    [["c", "--s1", "Completed"], ["d", "--s2", "Dropped out"], ["x", "--s3", "Transferred"]].forEach(([f, c, l], j) => {
+      const v = s[f] / s.n, yy = y + bOff + j * 15;
+      const p = el("path", { d: roundRight(X(0), yy, Math.max(1, X(v) - X(0)), 13), fill: `var(${c})` }, svg);
+      if (j === 0) txt(svg, X(v) + 6, yy + 11, pct(v), { class: "lab-strong num" });
+      bindTip(p, `<b>${esc(s.label)}</b><br>${l}: ${pct(v)} (${fmtN(s[f])})`);
+    });
+  });
+}
+
+/* ---------- 4 length of stay ---------- */
+function aggLos(group) {
+  const a = Object.fromEntries(bands.map(b => [b.sort, { sort: b.sort, label: b.label, n: 0, c: 0, d: 0 }]));
+  for (const [k, g, b, n, c, d] of D.cube_los) if (inScope(k) && (group === "All settings" || g === group)) { a[b].n += n; a[b].c += c; a[b].d += d; }
+  return Object.values(a);
+}
+function lineChart(boxId, series, yMax, label) {
+  const box = document.getElementById(boxId); box.innerHTML = "";
+  const W = Math.max(300, box.clientWidth || 560), H = 290, L = 44, R = 16, T = 14, B = 54;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": label }, box);
+  const n = bands.length, X = i => L + (i * (W - L - R)) / (n - 1), Y = v => T + (1 - v / yMax) * (H - T - B);
+  for (let v = 0; v <= yMax + 1e-9; v += yMax / 4) { el("line", { x1: L, x2: W - R, y1: Y(v), y2: Y(v), class: v === 0 ? "baseline" : "gridline" }, svg); txt(svg, L - 6, Y(v) + 4, pct(v, 0), { class: "tick", "text-anchor": "end" }); }
+  bands.forEach((b, i) => { if (W < 460 && i % 2 === 1) return; const t = txt(svg, X(i), H - B + 18, b.label.replace(" days", "d").replace("More than 1 year", ">1 yr").replace(" day", "d"), { class: "tick", "text-anchor": "middle" }); });
+  txt(svg, (L + W - R) / 2, H - 8, "Length of stay", { class: "tick", "text-anchor": "middle" });
+  series.forEach(s => {
+    const pts = s.values.map((v, i) => [X(i), Y(v)]);
+    el("path", { d: "M" + pts.map(p => p.join(",")).join("L"), fill: "none", stroke: `var(${s.color})`, "stroke-width": 2, "stroke-linejoin": "round" }, svg);
+    pts.forEach(([x, y], i) => el("circle", { cx: x, cy: y, r: i === pts.length - 1 ? 4.5 : 3.5, fill: `var(${s.color})`, stroke: "var(--surface)", "stroke-width": 2 }, svg));
+    const [lx, ly] = pts[pts.length - 1];
+    if (s.endLabel) txt(svg, lx - 8, s.endLabel === "below" ? ly + 18 : ly - 10, pct(s.values[s.values.length - 1]), { class: "lab-strong", "text-anchor": "end" });
+  });
+  // crosshair hover
+  const cross = el("line", { y1: T, y2: H - B, class: "gridline", stroke: "var(--axis)", opacity: 0 }, svg);
+  bands.forEach((b, i) => {
+    const w = (W - L - R) / (n - 1);
+    const hit = el("rect", { x: X(i) - w / 2, y: T, width: w, height: H - T - B, class: "hit" }, svg);
+    const html = `<b>${b.label}</b><br>` + series.map(s => `${s.name}: ${pct(s.values[i])}`).join("<br>") + (series[0].extra ? `<br>${series[0].extra[i]}` : "");
+    hit.addEventListener("mouseenter", e => { cross.setAttribute("x1", X(i)); cross.setAttribute("x2", X(i)); cross.setAttribute("opacity", 1); showTip(e, html); });
+    hit.addEventListener("mousemove", moveTip);
+    hit.addEventListener("mouseleave", () => { cross.setAttribute("opacity", 0); hideTip(); });
+  });
+}
+function renderLos() {
+  const a = aggLos(st.group);
+  const dTot = a.reduce((s, b) => s + b.d, 0);
+  const comp = a.map(b => b.n ? b.c / b.n : 0), drop = a.map(b => b.n ? b.d / b.n : 0);
+  const extra = a.map(b => `${fmtN(b.n)} discharges`);
+  const yMax = Math.max(0.6, Math.ceil(Math.max(...comp, ...drop) * 5) / 5);
+  lineChart("ch-los", [{ name: "Completion rate", color: "--s1", values: comp, extra, endLabel: comp[comp.length - 1] >= drop[drop.length - 1] ? "above" : "below" }, { name: "Dropout rate", color: "--s2", values: drop, endLabel: comp[comp.length - 1] >= drop[drop.length - 1] ? "below" : "above" }], yMax, "Completion and dropout rate by length of stay");
+  let run = 0; const cum = a.map(b => (run += b.d) / Math.max(1, dTot));
+  lineChart("ch-cum", [{ name: "Share of dropouts gone", color: "--s2", values: cum, extra: a.map(b => `${fmtN(b.d)} dropouts in band`), endLabel: false }], 1, "Cumulative share of dropouts by length of stay");
+  const d30 = a.filter(b => b.sort <= 4).reduce((s, b) => s + b.d, 0), d7 = a.filter(b => b.sort <= 2).reduce((s, b) => s + b.d, 0);
+  document.getElementById("los-callout").innerHTML = dTot
+    ? `In ${esc(st.group === "All settings" ? "all settings" : st.group.toLowerCase())}, <b>${pct(d30 / dTot)}</b> of ${fmtN(dTot)} dropouts happen within 30 days and <b>${pct(d7 / dTot)}</b> within the first week, so engagement in week one is where follow-up pays off.`
+    : "No dropouts in this scope.";
+}
+
+/* ---------- 5 who completes ---------- */
+const ORDER = { "Age band": ["Under 18", "18-24", "25-34", "35-44", "45-54", "55+"] };
+function aggWho(dim) {
+  const a = {};
+  for (const [k, d, m, n, c, dd] of D.cube_who) if (d === dim && inScope(k)) { const o = a[m] || (a[m] = { member: m, n: 0, c: 0, d: 0 }); o.n += n; o.c += c; o.d += dd; }
+  return Object.values(a).map(o => ({ ...o, rate: o.c / o.n }));
+}
+function renderWho() {
+  const t = totals(); const ref = t.c / t.n;
+  const azIn = inScope(AZ);
+  const notes = { "Primary substance": "Arizona supplies 81% of records with an unknown primary substance, which is why that group sits far above the line.",
+                  "Race": "Arizona supplies 70% of records with missing race and 53% of American Indian records, which lifts both groups." };
+  document.getElementById("who-note").textContent = azIn && notes[st.dim] ? notes[st.dim] + " Switch to Exclude Arizona to see the pattern without it." : "";
+  let list = aggWho(st.dim);
+  list.sort(ORDER[st.dim] ? (a, b) => ORDER[st.dim].indexOf(a.member) - ORDER[st.dim].indexOf(b.member) : (a, b) => b.rate - a.rate);
+  const box = document.getElementById("ch-who"); box.innerHTML = "";
+  const W = box.clientWidth || 1000, narrow = W < 640;
+  const labelW = narrow ? 128 : 300, rowH = 30, top = 26, R = narrow ? 64 : 150;
+  const plotW = W - labelW - R;
+  const maxAbs = Math.max(0.1, ...list.map(o => Math.abs(o.rate - ref)));
+  const lim = Math.ceil(maxAbs * 10) / 10;
+  const X = v => labelW + ((v + lim) / (2 * lim)) * plotW;
+  const H = top + list.length * rowH + 6;
+  const svg = el("svg", { viewBox: `0 0 ${W} ${H}`, role: "img", "aria-label": `Completion gap by ${st.dim}` }, box);
+  (narrow ? [-lim, 0, lim] : [-lim, -lim / 2, 0, lim / 2, lim]).forEach(v => { el("line", { x1: X(v), x2: X(v), y1: top - 6, y2: H - 4, class: v === 0 ? "baseline" : "gridline" }, svg); txt(svg, X(v), 14, v === 0 ? (narrow ? pct(ref) : "Scope " + pct(ref)) : pp(v).replace(".0 pp", " pp"), { class: v === 0 ? "lab-strong" : "tick", "text-anchor": v === -lim && narrow ? "start" : v === lim && narrow ? "end" : "middle" }); });
+  list.forEach((o, i) => {
+    const y = top + i * rowH, gap = o.rate - ref, small = o.n < 500;
+    let lab = o.member.replace("Missing/unknown/not collected/invalid", "Missing / unknown").replace(" (other than Alaska Native)", "").replace(" (Aleut Eskimo)", "");
+    if (narrow && lab.length > 17) lab = lab.slice(0, 16) + "…";
+    txt(svg, labelW - 10, y + rowH / 2 + 4, lab, { "text-anchor": "end", class: small ? "tick" : "lab-strong" });
+    const x0 = X(0), x1 = X(gap), h = Math.min(16, rowH - 10);
+    const d = gap >= 0 ? roundRight(x0, y + (rowH - h) / 2, Math.max(1, x1 - x0), h) : roundLeft(x1, y + (rowH - h) / 2, Math.max(1, x0 - x1), h);
+    const p = el("path", { d, fill: gap >= 0 ? "var(--s1)" : "var(--s2)", opacity: small ? 0.35 : 1 }, svg);
+    txt(svg, W - R + 10, y + rowH / 2 + 4, narrow ? pct(o.rate) : `${pct(o.rate)} · ${fmtN(o.n)}`, { class: "tick num" });
+    const hit = el("rect", { x: 0, y, width: W, height: rowH, class: "hit" }, svg);
+    bindTip(hit, `<b>${esc(o.member)}</b><br>${fmtN(o.n)} discharges<br>Completed ${pct(o.rate)} (${pp(gap)} vs scope)<br>Dropped out ${pct(o.d / o.n)}${small ? "<br>Small group: read with care" : ""}`);
+  });
+}
+
+/* ---------- DQ ledger ---------- */
+function renderDQ() {
+  document.getElementById("tb-dq").innerHTML = `<thead><tr><th>Check</th><th>What it tests</th><th>Category</th><th class="r">Expected</th><th class="r">Actual</th><th>Result</th></tr></thead><tbody>` +
+    D.dq.map(([id, name, cat, e, a]) => `<tr><td class="num">${id}</td><td>${esc(name)}</td><td>${esc(cat)}</td><td class="r">${fmtN(e)}</td><td class="r">${fmtN(a)}</td><td class="${e === a ? "pass" : "fail"}">${e === a ? "✓ Pass" : "✕ Fail"}</td></tr>`).join("") + "</tbody>";
+}
+
+/* ---------- wiring ---------- */
+const PANELS = { score: renderScore, state: renderStates, setting: renderSetting, los: renderLos, who: renderWho };
+function render() { renderHeader(); PANELS[st.tab](); }
+function setTab(t) {
+  st.tab = t;
+  document.querySelectorAll(".tab").forEach(b => { const on = b.id === "t-" + t; b.setAttribute("aria-selected", on); b.tabIndex = on ? 0 : -1; });
+  document.querySelectorAll(".panel").forEach(p => { p.hidden = p.id !== "p-" + t; });
+  try { localStorage.setItem("tedsTab", t); } catch (e) {}
+  render();
+}
+function segBind(id, key, after) {
+  document.getElementById(id).addEventListener("click", e => {
+    const b = e.target.closest("button"); if (!b) return;
+    st[key] = b.dataset[key];
+    document.querySelectorAll(`#${id} button`).forEach(x => x.setAttribute("aria-pressed", x === b));
+    if (after) after(); render();
+  });
+}
+segBind("scope-seg", "scope", fillSelects);
+segBind("sort-seg", "sort");
+segBind("dim-seg", "dim");
+document.getElementById("f-region").addEventListener("change", e => { st.region = e.target.value; st.state = ""; fillSelects(); render(); });
+document.getElementById("f-state").addEventListener("change", e => { st.state = e.target.value; render(); });
+document.getElementById("f-group").addEventListener("change", e => { st.group = e.target.value; render(); });
+document.querySelectorAll(".tab").forEach(b => b.addEventListener("click", () => setTab(b.id.slice(2))));
+document.querySelector(".tabs").addEventListener("keydown", e => {
+  const ids = Object.keys(PANELS), i = ids.indexOf(st.tab);
+  if (e.key === "ArrowRight" || e.key === "ArrowLeft") { const n = ids[(i + (e.key === "ArrowRight" ? 1 : ids.length - 1)) % ids.length]; setTab(n); document.getElementById("t-" + n).focus(); }
+});
+let rz; addEventListener("resize", () => { clearTimeout(rz); rz = setTimeout(render, 150); });
+fillSelects(); renderDQ();
+if (!PANELS[st.tab]) st.tab = "score";
+setTab(st.tab);
+</script>

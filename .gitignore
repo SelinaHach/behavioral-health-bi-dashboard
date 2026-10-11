@@ -1,0 +1,7 @@
+data_raw/
+*.duckdb
+__pycache__/
+local_sql.env
+*.zip
+.DS_Store
+_to_delete/

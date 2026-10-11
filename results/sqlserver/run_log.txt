@@ -1,0 +1,131 @@
+== Sun Oct 11 15:18:54 EDT 2026 ==
+1/5 Starting SQL Server 2022 container (first run downloads ~1.5 GB)...
+47ce367ab92c26f69473c0d53d87472cb960f85ae5606bfe4b76d22fd8a5f791
+2/5 Waiting for SQL Server to accept connections...
+   ready after ~10s
+3/5 Copying scripts and data into the container...
+4/5 Running sql/00_run_all.sql (stage -> reference -> DQ gate -> star schema -> views)...
+Changed database context to 'TEDS_BI'.
+
+(1474025 rows affected)
+rows_loaded
+-----------
+    1474025
+
+(1 rows affected)
+Changed database context to 'TEDS_BI'.
+
+(49 rows affected)
+
+(8 rows affected)
+
+(20 rows affected)
+
+(12 rows affected)
+
+(3 rows affected)
+
+(10 rows affected)
+
+(6 rows affected)
+
+(37 rows affected)
+
+(7 rows affected)
+
+(152 rows affected)
+Changed database context to 'TEDS_BI'.
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+
+(1 rows affected)
+check_id check_name                                                                                           expected             actual               status
+-------- ---------------------------------------------------------------------------------------------------- -------------------- -------------------- ------
+DQ01     Row count matches the codebook                                                                                    1474025              1474025 PASS  
+DQ02     Column count matches the codebook                                                                                      76                   76 PASS  
+DQ03     Duplicate CASEIDs                                                                                                       0                    0 PASS  
+DQ04     Blank values in the columns we use                                                                                      0                    0 PASS  
+DQ05     Discharge year is not 2023                                                                                              0                    0 PASS  
+DQ06     Invalid state codes                                                                                                     0                    0 PASS  
+DQ07     Invalid discharge reason codes                                                                                          0                    0 PASS  
+DQ08     Invalid service setting codes                                                                                           0                    0 PASS  
+DQ09     Invalid length of stay codes                                                                                            0                    0 PASS  
+DQ10     Invalid substance, age, sex, race or ethnicity codes                                                                    0                    0 PASS  
+DQ11     Codebook counts that do not match our counts                                                                            0                    0 PASS  
+
+(11 rows affected)
+Changed database context to 'TEDS_BI'.
+
+(1 rows affected)
+
+(49 rows affected)
+
+(8 rows affected)
+
+(20 rows affected)
+
+(1419 rows affected)
+
+(37 rows affected)
+
+(7 rows affected)
+
+(1474025 rows affected)
+
+(1 rows affected)
+check_id check_name                                                                                           expected             actual               status
+-------- ---------------------------------------------------------------------------------------------------- -------------------- -------------------- ------
+DQ01     Row count matches the codebook                                                                                    1474025              1474025 PASS  
+DQ02     Column count matches the codebook                                                                                      76                   76 PASS  
+DQ03     Duplicate CASEIDs                                                                                                       0                    0 PASS  
+DQ04     Blank values in the columns we use                                                                                      0                    0 PASS  
+DQ05     Discharge year is not 2023                                                                                              0                    0 PASS  
+DQ06     Invalid state codes                                                                                                     0                    0 PASS  
+DQ07     Invalid discharge reason codes                                                                                          0                    0 PASS  
+DQ08     Invalid service setting codes                                                                                           0                    0 PASS  
+DQ09     Invalid length of stay codes                                                                                            0                    0 PASS  
+DQ10     Invalid substance, age, sex, race or ethnicity codes                                                                    0                    0 PASS  
+DQ11     Codebook counts that do not match our counts                                                                            0                    0 PASS  
+DQ12     Rows lost between staging and the fact table                                                                            0                    0 PASS  
+
+(12 rows affected)
+Changed database context to 'TEDS_BI'.
+discharges  completed   dropouts    early_dropouts transfers   jurisdictions completion_rate          dropout_rate             early_dropout_rate       early_share_of_dropouts  transfer_rate            completion_rate_excl_review_states states_flagged_for_review
+----------- ----------- ----------- -------------- ----------- ------------- ------------------------ ------------------------ ------------------------ ------------------------ ------------------------ ---------------------------------- -------------------------
+    1474025      627897      324461         143964      370294            49      0.42597445769237291      0.22011906175268398    9.7667271586302812E-2       0.4437020165751816      0.25121283560319535                 0.4131172624843511                         5
+
+(1 rows affected)
+Pipeline complete. Connect Tableau to the TEDS_BI.rpt views.
+   exit code 0, 29s
+5/5 Exporting results...
+sql_server_version                                                                                                                                                                                                                                                                                          
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+Microsoft SQL Server 2022 (RTM-CU27) (KB5104824) - 16.0.4295.3 (X64) 
+	Aug 26 2026 11:02:22 
+	Copyright (C) 2022 Microsoft Corporation
+	Developer Edition (64-bit) on Linux (Ubuntu 22.04.5 LTS) <X64>                                                                                                      
+fact_rows           
+--------------------
+             1474025
+completion_rate         
+------------------------
+     0.42597445769237291
+DONE. SQL Server keeps running in Docker (container teds-sql, localhost,1433) for Tableau.

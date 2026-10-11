@@ -1,0 +1,13 @@
+check_id,check_name,category,expected,actual,status
+DQ01,Row count matches the codebook,Completeness,1474025,1474025,PASS
+DQ02,Column count matches the codebook,Completeness,76,76,PASS
+DQ03,Duplicate CASEIDs,Uniqueness,0,0,PASS
+DQ04,Blank values in the columns we use,Completeness,0,0,PASS
+DQ05,Discharge year is not 2023,Validity,0,0,PASS
+DQ06,Invalid state codes,Validity,0,0,PASS
+DQ07,Invalid discharge reason codes,Validity,0,0,PASS
+DQ08,Invalid service setting codes,Validity,0,0,PASS
+DQ09,Invalid length of stay codes,Validity,0,0,PASS
+DQ10,"Invalid substance, age, sex, race or ethnicity codes",Validity,0,0,PASS
+DQ11,Codebook counts that do not match our counts,Reconciliation,0,0,PASS
+DQ12,Rows lost between staging and the fact table,Integrity,0,0,PASS
